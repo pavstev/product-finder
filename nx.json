@@ -1,0 +1,114 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/.nvmrc",
+      "{workspaceRoot}/pnpm-lock.yaml"
+    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.spec.ts",
+      "!{projectRoot}/test/**/*",
+      "!{projectRoot}/jest.config.ts",
+      "!{projectRoot}/jest.config.cjs",
+      "!{projectRoot}/jest.e2e.config.ts",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/src/test-setup.ts",
+      "!{projectRoot}/.swcrc",
+      "!{projectRoot}/eslint.config.mjs",
+      "!{projectRoot}/src/**/testing/**/*"
+    ],
+    "testing": ["{projectRoot}/src/**/testing/**/*"],
+    "catalogExport": ["{workspaceRoot}/data/products.csv"]
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build", "^prisma-generate", "^generate", "generate"],
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "dependentTasksOutputFiles": "**/*.ts",
+          "transitive": true
+        }
+      ]
+    },
+    "test": {
+      "cache": true,
+      "dependsOn": ["^prisma-generate", "^generate", "generate"],
+      "inputs": [
+        "default",
+        "^production",
+        "^testing",
+        {
+          "dependentTasksOutputFiles": "**/*.ts",
+          "transitive": true
+        }
+      ]
+    },
+    "typecheck": {
+      "cache": true,
+      "dependsOn": ["^prisma-generate", "^generate", "generate"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "dependentTasksOutputFiles": "**/*.ts",
+          "transitive": true
+        }
+      ]
+    },
+    "lint": {
+      "cache": true,
+      "dependsOn": ["^prisma-generate", "^generate", "generate"]
+    },
+    "e2e": {
+      "cache": false,
+      "parallelism": false
+    }
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        }
+      }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "include": ["apps/web-e2e/**/*"],
+      "options": {
+        "targetName": "e2e"
+      }
+    }
+  ]
+}

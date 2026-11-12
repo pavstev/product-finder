@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    // import/adapters imports demo-reviews.json as a module, and webpack bundles it.
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "../../dist/out-tsc",
+    // The app imports the libs through their aliases, so the sources span the workspace.
+    "rootDir": "../..",
+    "skipLibCheck": true,
+    "strict": true,
+    "types": ["jest", "node"]
+  }
+}

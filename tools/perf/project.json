@@ -1,0 +1,64 @@
+{
+  "name": "perf",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/perf/src",
+  "projectType": "application",
+  "tags": ["scope:tools"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "metadata": { "description": "Compile the generator and the bench to dist/tools/perf." },
+      "dependsOn": ["^build", "^prisma-generate"],
+      "options": {
+        "main": "tools/perf/src/main.ts",
+        "outputPath": "dist/tools/perf",
+        "tsConfig": "tools/perf/tsconfig.lib.json",
+        "generatePackageJson": false
+      }
+    },
+    "generate-catalog": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "Write the seeded synthetic catalogue and its changed variant. Pass flags with --args, for example --args=\"--rows=50000 --seed=42 --out=tmp/perf\"."
+      },
+      "dependsOn": ["build"],
+      "options": { "command": "node dist/tools/perf/src/main.js" }
+    },
+    "test": {
+      "dependsOn": ["^prisma-generate"],
+      "inputs": [
+        "default",
+        "^production",
+        "^testing",
+        { "dependentTasksOutputFiles": "**/*.ts", "transitive": true },
+        "catalogExport"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["^prisma-generate"],
+      "inputs": ["default", "^production", { "externalDependencies": ["typescript"] }],
+      "options": {
+        "commands": ["tsc --noEmit -p tsconfig.lib.json", "tsc --noEmit -p tsconfig.spec.json"],
+        "parallel": false,
+        "cwd": "{projectRoot}"
+      }
+    },
+    "bench": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "Drop and create product_finder_perf, migrate it, time four imports of the generated files, then time the queries against the built API. Run perf:generate-catalog first. Results go to tmp/perf/results."
+      },
+      "dependsOn": [
+        "build",
+        { "projects": ["catalog-import"], "target": "build" },
+        { "projects": ["api"], "target": "build" }
+      ],
+      "options": { "command": "node dist/tools/perf/src/bench.js" }
+    }
+  }
+}

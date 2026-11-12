@@ -1,0 +1,117 @@
+// Product Finder data model.
+// Products are owned by the PIM import (keyed by SKU). Reviews are owned by users.
+// The import never deletes a product, so reviews always keep their product.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/db/generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductStatus {
+  ACTIVE
+  PHASE_OUT
+  DISCONTINUED
+}
+
+enum ImportRunStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+  ABORTED
+}
+
+model Product {
+  id              String        @id @default(uuid()) @db.Uuid
+  /// Business key from the PIM. Stable across imports; used in URLs.
+  sku             String        @unique
+  name            String
+  chemicalName    String?       @map("chemical_name")
+  function        String
+  applicationArea String        @map("application_area")
+  region          String
+  certifications  String[]
+  status          ProductStatus
+  launchYear      Int?          @map("launch_year")
+  description     String?
+
+  /// Lower-cased text of all searchable fields. Written by the import only.
+  /// A pg_trgm GIN index makes ILIKE '%term%' fast at 50k+ rows.
+  searchText      String        @map("search_text")
+  /// Hash of the normalized PIM fields. Lets the nightly import skip unchanged rows.
+  sourceHash      String        @map("source_hash")
+  /// False when the last successful import did not contain this SKU.
+  /// Such products are hidden from search but their page and reviews stay reachable.
+  inLatestExport  Boolean       @default(true) @map("in_latest_export")
+
+  /// Review aggregates. Written by the reviews flow only (atomic SQL update).
+  reviewCount     Int           @default(0) @map("review_count")
+  ratingSum       Int           @default(0) @map("rating_sum")
+  ratingAvg       Float?        @map("rating_avg")
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  reviews         Review[]
+
+  @@index([inLatestExport, status])
+  @@index([function])
+  @@index([applicationArea])
+  @@index([region])
+  @@index([name])
+  @@index([launchYear])
+  @@index([ratingAvg])
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "product_search_text_trgm_idx")
+  @@index([certifications], type: Gin, map: "product_certifications_idx")
+  // Facet values: an index-only scan over listed products instead of a table scan.
+  @@index([inLatestExport, status, function, applicationArea, region, certifications], map: "product_facets_idx")
+  // The -rating sort. The real index is rating_avg DESC NULLS LAST, sku. It is hand-written SQL
+  // in migrations/20261112160000_add_facet_and_rating_sort_indexes, because Prisma cannot say NULLS LAST.
+  // The migration drift check compares the columns and DESC, not the NULLS order.
+  @@index([ratingAvg(sort: Desc), sku], map: "product_rating_avg_desc_sku_idx")
+  @@map("product")
+}
+
+model Review {
+  id         String   @id @default(uuid()) @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  /// 1..5, also enforced by a CHECK constraint in the migration.
+  rating     Int      @db.SmallInt
+  title      String?  @db.VarChar(120)
+  body       String   @db.VarChar(2000)
+  /// Public display name. No e-mail or other personal data is stored.
+  authorName String   @map("author_name") @db.VarChar(60)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  /// Restrict: a product with reviews can never be deleted by accident.
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId, createdAt(sort: Desc)])
+  @@map("review")
+}
+
+/// One row per import attempt. Audit trail and "catalogue last updated" for the UI.
+model ImportRun {
+  id            String          @id @default(uuid()) @db.Uuid
+  source        String
+  status        ImportRunStatus @default(RUNNING)
+  startedAt     DateTime        @default(now()) @map("started_at")
+  finishedAt    DateTime?       @map("finished_at")
+  rowsRead      Int             @default(0) @map("rows_read")
+  created       Int             @default(0)
+  updated       Int             @default(0)
+  unchanged     Int             @default(0)
+  rejected      Int             @default(0)
+  duplicates    Int             @default(0)
+  markedMissing Int             @default(0) @map("marked_missing")
+  /// List of { line, sku, level, message } found while reading the file.
+  issues        Json            @default("[]")
+  error         String?
+
+  @@index([status, finishedAt(sort: Desc)])
+  @@map("import_run")
+}

@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+.angular/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+libs/server/src/db/generated/
+libs/web/src/data-access/generated/
+.DS_Store
+.nx/cache
+.nx/workspace-data
+tmp/
+# Playwright reports and traces of apps/web-e2e.
+playwright-report/
+test-results/

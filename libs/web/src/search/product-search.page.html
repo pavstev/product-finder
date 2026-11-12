@@ -1,0 +1,252 @@
+<ng-template #filters let-id>
+  @let s = shown();
+  @let o = options();
+  <div class="filters">
+    @if (facets.status() === 'error') {
+      <p-message class="facets-error" severity="error" icon="pi pi-exclamation-triangle">
+        <div class="error">
+          <span>The filter options could not be loaded.</span>
+          <p-button
+            label="Retry"
+            ariaLabel="Retry loading the filter options"
+            icon="pi pi-refresh"
+            size="small"
+            (onClick)="retryFacets()"
+          />
+        </div>
+      </p-message>
+    }
+    <div class="field">
+      <label [for]="id + '-function'">Function</label>
+      <p-multiselect
+        [inputId]="id + '-function'"
+        [options]="o.functions"
+        optionLabel="label"
+        optionValue="value"
+        optionDisabled="disabled"
+        [ngModel]="s.function"
+        (ngModelChange)="setList('function', $event)"
+        placeholder="Any function"
+        display="chip"
+        [showClear]="true"
+        appendTo="body"
+        fluid
+      />
+    </div>
+    <div class="field">
+      <label [for]="id + '-area'">Application area</label>
+      <p-multiselect
+        [inputId]="id + '-area'"
+        [options]="o.applicationAreas"
+        optionLabel="label"
+        optionValue="value"
+        optionDisabled="disabled"
+        [ngModel]="s.applicationArea"
+        (ngModelChange)="setList('applicationArea', $event)"
+        placeholder="Any application area"
+        display="chip"
+        [showClear]="true"
+        appendTo="body"
+        fluid
+      />
+    </div>
+    <div class="field">
+      <label [for]="id + '-region'">Region</label>
+      <p-select
+        [inputId]="id + '-region'"
+        [options]="o.regions"
+        optionLabel="label"
+        optionValue="value"
+        optionDisabled="disabled"
+        [ngModel]="s.region"
+        (ngModelChange)="update({ region: $event ?? null })"
+        placeholder="Any region"
+        [showClear]="true"
+        appendTo="body"
+        fluid
+      />
+      <small class="hint">Products sold globally are always included.</small>
+    </div>
+    <div class="field">
+      <label [for]="id + '-cert'">Certifications</label>
+      <p-multiselect
+        [inputId]="id + '-cert'"
+        [options]="o.certifications"
+        optionLabel="label"
+        optionValue="value"
+        optionDisabled="disabled"
+        [ngModel]="s.certifications"
+        (ngModelChange)="setList('certifications', $event)"
+        placeholder="Any certification"
+        display="chip"
+        [showClear]="true"
+        appendTo="body"
+        fluid
+      />
+      <small class="hint">Products must have all selected certifications.</small>
+    </div>
+    <div class="check">
+      <p-checkbox
+        [inputId]="id + '-discontinued'"
+        [binary]="true"
+        [ngModel]="discontinued()"
+        (ngModelChange)="setDiscontinued($event)"
+      />
+      <label [for]="id + '-discontinued'">Include discontinued products</label>
+    </div>
+  </div>
+</ng-template>
+
+<section class="search-page">
+  <h1 class="visually-hidden">Search the product catalogue</h1>
+
+  <div class="toolbar">
+    <div class="search">
+      <label for="search-input" class="visually-hidden">Search products</label>
+      <span class="search-box">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input
+          id="search-input"
+          pInputText
+          type="search"
+          placeholder="Search by name, SKU or chemistry"
+          [maxlength]="queryMax"
+          autocomplete="off"
+          [ngModel]="searchText()"
+          (ngModelChange)="onType($event)"
+        />
+      </span>
+    </div>
+    <div class="sort">
+      <label for="sort-select">Sort</label>
+      <p-select
+        inputId="sort-select"
+        [options]="sortOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="state().sort"
+        (ngModelChange)="update({ sort: $event })"
+      />
+    </div>
+    @if (isMobile()) {
+      <p-button
+        class="filters-button"
+        icon="pi pi-filter"
+        [label]="'Filters (' + filterCount() + ')'"
+        [outlined]="true"
+        (onClick)="filtersOpen.set(true)"
+      />
+    }
+  </div>
+
+  <div class="layout">
+    @if (isMobile()) {
+      <p-drawer
+        [(visible)]="filtersOpen"
+        header="Filters"
+        ariaCloseLabel="Close filters"
+        position="left"
+        styleClass="filters-drawer"
+      >
+        <ng-container *ngTemplateOutlet="filters; context: { $implicit: 'drawer' }" />
+        <p-button label="Show results" styleClass="w-full" (onClick)="filtersOpen.set(false)" />
+      </p-drawer>
+    } @else {
+      <aside aria-label="Filters">
+        <ng-container *ngTemplateOutlet="filters; context: { $implicit: 'side' }" />
+      </aside>
+    }
+
+    <div class="results">
+      @if (chips().length > 0) {
+        <div class="link-filters">
+          <span id="link-filters-label">Also filtered by</span>
+          <ul aria-labelledby="link-filters-label">
+            @for (chip of chips(); track chip.field + ':' + chip.value) {
+              <li>
+                <span>{{ chip.label }}</span>
+                <button
+                  type="button"
+                  [attr.aria-label]="'Remove filter ' + chip.label"
+                  (click)="removeChip(chip)"
+                >
+                  <i class="pi pi-times" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+      @switch (view()) {
+        @case ('loading') {
+          <p class="count" aria-live="polite">Loading products...</p>
+          <div class="grid" aria-busy="true">
+            @for (i of skeletons; track i) {
+              <p-skeleton height="12rem" />
+            }
+          </div>
+        }
+        @case ('error') {
+          <p-message severity="error" icon="pi pi-exclamation-triangle">
+            <div class="error">
+              <span>{{ errorMessage() }}</span>
+              <p-button
+                label="Retry"
+                ariaLabel="Retry loading the results"
+                icon="pi pi-refresh"
+                size="small"
+                (onClick)="retry()"
+              />
+            </div>
+          </p-message>
+        }
+        @case ('ok') {
+          @let r = page()!;
+          @if (refreshFailed()) {
+            <p-message class="refresh-error" severity="error" icon="pi pi-exclamation-triangle">
+              <div class="error">
+                <span>The results could not be updated. You see the last loaded results.</span>
+                <p-button
+                  label="Retry"
+                  ariaLabel="Retry loading the results"
+                  icon="pi pi-refresh"
+                  size="small"
+                  (onClick)="retry()"
+                />
+              </div>
+            </p-message>
+          }
+          <p class="count" aria-live="polite">
+            {{ r.total }} {{ r.total === 1 ? 'product' : 'products' }}
+            @if (filterCount() > 0 || state().q) {
+              <button type="button" class="link" (click)="clearFilters()">Clear filters</button>
+            }
+          </p>
+          @if (r.total === 0) {
+            <div class="empty">
+              <i class="pi pi-inbox" aria-hidden="true"></i>
+              <h2>No products match your search</h2>
+              <p>Try fewer words or remove some filters.</p>
+              <p-button label="Clear filters" icon="pi pi-filter-slash" (onClick)="clearFilters()" />
+            </div>
+          } @else {
+            <div class="grid">
+              @for (product of r.items; track product.sku) {
+                <app-product-card [product]="product" />
+              }
+            </div>
+            @if (r.total > pageSize) {
+              <p-paginator
+                [first]="first()"
+                [rows]="pageSize"
+                [totalRecords]="pagedTotal()"
+                [pageLinkSize]="isMobile() ? 3 : 5"
+                (onPageChange)="onPage($event)"
+              />
+            }
+          }
+        }
+      }
+    </div>
+  </div>
+</section>

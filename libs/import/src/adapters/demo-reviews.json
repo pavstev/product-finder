@@ -1,0 +1,110 @@
+[
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000001",
+    "sku": "P-10001",
+    "rating": 5,
+    "title": "Reliable base surfactant",
+    "body": "We switched our dishwashing liquid to this grade last year. Foam profile is stable and the batches are consistent.",
+    "authorName": "Ana K.",
+    "createdAt": "2026-09-02T09:15:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000002",
+    "sku": "P-10001",
+    "rating": 4,
+    "title": "Good, watch the viscosity",
+    "body": "Works well in our all-purpose cleaner. Salt response is a bit stronger than our previous supplier, so adjust the thickener.",
+    "authorName": "Jonas M.",
+    "createdAt": "2026-09-20T14:40:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000003",
+    "sku": "P-10001",
+    "rating": 5,
+    "title": null,
+    "body": "Easy to process at room temperature. Documentation for the RSPO claim was complete and quick to get.",
+    "authorName": "Priya S.",
+    "createdAt": "2026-10-11T08:05:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000004",
+    "sku": "P-10002",
+    "rating": 4,
+    "title": "Stable emulsions in our EC formulation",
+    "body": "Emulsion stability at 54 degrees for two weeks was fine. Slight creaming at the lowest pH we tested.",
+    "authorName": "Carlos R.",
+    "createdAt": "2026-08-14T11:30:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000005",
+    "sku": "P-10002",
+    "rating": 3,
+    "title": "Does the job",
+    "body": "Performance is fine but we needed a higher dose than the technical data sheet suggests for our oil phase.",
+    "authorName": "Mei L.",
+    "createdAt": "2026-10-03T16:20:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000006",
+    "sku": "P-10004",
+    "rating": 5,
+    "title": "Cold process works",
+    "body": "We dropped the heating step for our body lotion. Saves energy and the texture is the same as before.",
+    "authorName": "Sofia B.",
+    "createdAt": "2026-07-29T10:00:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000007",
+    "sku": "P-10004",
+    "rating": 4,
+    "title": null,
+    "body": "Good emulsifier for light lotions. For heavier creams we combine it with a co-emulsifier.",
+    "authorName": "Tom H.",
+    "createdAt": "2026-09-30T13:45:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000008",
+    "sku": "P-10005",
+    "rating": 2,
+    "title": "Odour issue in our base",
+    "body": "Preservation efficacy passed the challenge test, but we noticed a faint odour in our fragrance-free base.",
+    "authorName": "Lena W.",
+    "createdAt": "2026-08-21T07:50:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000009",
+    "sku": "P-10005",
+    "rating": 4,
+    "title": "Passed the challenge test",
+    "body": "Clean challenge test results at the recommended dose in our surface cleaner. No stability problems after three months.",
+    "authorName": "Marko P.",
+    "createdAt": "2026-10-18T12:10:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000010",
+    "sku": "P-10006",
+    "rating": 5,
+    "title": "Great for waterborne coatings",
+    "body": "Good coalescence and low odour. Our applicators noticed the difference on indoor jobs.",
+    "authorName": "Elif Y.",
+    "createdAt": "2026-09-08T15:25:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000011",
+    "sku": "P-10006",
+    "rating": 4,
+    "title": null,
+    "body": "Evaporation rate fits our spray application. Price is a bit higher than the alternative we tested.",
+    "authorName": "Daniel F.",
+    "createdAt": "2026-10-25T09:35:00.000Z"
+  },
+  {
+    "id": "6f1b2a10-0001-4c3e-9a01-000000000012",
+    "sku": "P-10006",
+    "rating": 3,
+    "title": "Fine, longer drying time",
+    "body": "Works, but drying time in cold conditions was longer than expected. We adjusted the blend with a faster solvent.",
+    "authorName": "Ingrid N.",
+    "createdAt": "2026-11-02T17:00:00.000Z"
+  }
+]

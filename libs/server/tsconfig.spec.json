@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    // The parity spec imports shared, so the sources span libs/. Type checks only, nothing is emitted.
+    "rootDir": "../..",
+    "types": ["jest", "node"]
+  },
+  "include": ["jest.config.ts", "prisma.config.ts", "src/**/*.ts"]
+}

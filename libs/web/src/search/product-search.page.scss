@@ -1,0 +1,182 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.search {
+  flex: 1 1 18rem;
+}
+
+.search-box {
+  position: relative;
+  display: block;
+}
+
+.search-box .pi-search {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--p-text-muted-color);
+}
+
+.search-box input {
+  width: 100%;
+  padding-left: 2.25rem;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .layout {
+    grid-template-columns: 16rem 1fr;
+  }
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field label {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.hint {
+  color: var(--p-text-muted-color);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.count {
+  margin: 0 0 0.75rem;
+  color: var(--p-text-muted-color);
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+p-paginator {
+  display: block;
+  margin-top: 1rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.empty .pi-inbox {
+  font-size: 2rem;
+  color: var(--p-text-muted-color);
+}
+
+.refresh-error {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.link-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.link-filters ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link-filters li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.125rem 0.125rem 0.75rem;
+  border-radius: 1rem;
+  background: var(--p-highlight-background);
+  color: var(--p-highlight-color);
+}
+
+/* At least 24 by 24 px, the WCAG target size. */
+.link-filters button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.link-filters button:hover {
+  background: var(--p-content-hover-background);
+}
+
+.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 0.5rem;
+  color: var(--p-primary-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}

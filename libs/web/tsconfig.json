@@ -1,0 +1,25 @@
+/* Angular lib. The same compiler options as apps/web/tsconfig.json. */
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The base turns this on for Nest. Angular does not need it, and it would change the bundle.
+    "emitDecoratorMetadata": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "include": [],
+  "references": [{ "path": "./tsconfig.lib.json" }, { "path": "./tsconfig.spec.json" }]
+}

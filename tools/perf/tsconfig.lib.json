@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    // The perf tool imports no other project, so the build needs no path alias at run time.
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["queries.ts", "src/**/*.ts"],
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+}

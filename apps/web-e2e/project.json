@@ -1,0 +1,28 @@
+{
+  "name": "web-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/web-e2e/src",
+  "tags": ["type:e2e"],
+  "implicitDependencies": ["web", "api"],
+  "targets": {
+    "e2e": {
+      "metadata": {
+        "description": "Playwright and axe against a running stack at E2E_BASE_URL (default http://localhost:8080). Start it first: docker compose up --build --wait (the main flow posts one review per device project from one IP, the API allows 20 review writes a minute per IP)."
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [],
+      "inputs": [
+        "default",
+        { "externalDependencies": ["typescript", "@playwright/test", "@axe-core/playwright"] }
+      ],
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

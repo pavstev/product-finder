@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "strict": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@product-finder/api": ["./libs/api/src/index.ts"],
+      "@product-finder/import": ["./libs/import/src/index.ts"],
+      "@product-finder/server": ["./libs/server/src/index.ts"],
+      "@product-finder/server/client": ["./libs/server/src/db/client.ts"],
+      "@product-finder/server/otel": ["./libs/server/src/observability/otel.ts"],
+      "@product-finder/shared": ["./libs/shared/src/index.ts"],
+      "@product-finder/web": ["./libs/web/src/index.ts"],
+      "@product-finder/web/not-found": ["./libs/web/src/ui/not-found.page.ts"],
+      "@product-finder/web/product": ["./libs/web/src/product/product-detail.page.ts"],
+      "@product-finder/web/search": ["./libs/web/src/search/product-search.page.ts"]
+    }
+  }
+}

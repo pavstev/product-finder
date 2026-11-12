@@ -1,0 +1,15 @@
+{
+  "printWidth": 110,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "overrides": [
+    { "files": "*.html", "options": { "parser": "angular" } },
+    { "files": ["tsconfig*.json", "*.jsonc"], "options": { "trailingComma": "none" } }
+  ]
+}

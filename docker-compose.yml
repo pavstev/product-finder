@@ -1,0 +1,73 @@
+# Local stack. `docker compose up --build` starts everything on an empty database:
+# db -> migrate (migrations + import + demo reviews, then exits) -> api -> web (http://localhost:8080).
+# For development only the db is needed: `pnpm db:up`.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: product_finder
+      POSTGRES_PASSWORD: product_finder
+      POSTGRES_DB: product_finder
+    ports:
+      - '127.0.0.1:${DB_PORT:-5432}:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U product_finder -d product_finder']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # One-off job: migrations, the import and the demo reviews. The nightly job runs the same image
+  # with its default command (import). The image holds the migrations and the default export.
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/catalog-import/Dockerfile
+    image: product-finder-catalog-import
+    # The image's ENTRYPOINT is `node --require ./otel.js main.js <command>`. Clear it to run two
+    # commands in one shell. The OpenTelemetry preload does nothing here, so it is left out.
+    # docker-compose.observability.yml adds it back.
+    entrypoint: []
+    command: ['sh', '-c', 'node main.js migrate && node main.js seed']
+    environment:
+      DATABASE_URL: postgresql://product_finder:product_finder@db:5432/product_finder
+      # Local demo data only. The nightly job never runs seed.
+      SEED_DEMO_REVIEWS: 'true'
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: product-finder-api
+    environment:
+      DATABASE_URL: postgresql://product_finder:product_finder@db:5432/product_finder
+      PORT: '3000'
+      TRUST_PROXY: '1'
+      # Review posts per minute per client IP. Raise it for the browser tests (apps/web-e2e).
+      THROTTLE_WRITE_PER_MIN: '${THROTTLE_WRITE_PER_MIN:-20}'
+    # Local machine only (for Swagger). The API trusts X-Forwarded-For, so a client that
+    # reaches it directly, not through nginx, could fake its IP and skip the review rate limit.
+    ports:
+      - '127.0.0.1:${API_PORT:-3000}:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - '${WEB_PORT:-8080}:8080'
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:

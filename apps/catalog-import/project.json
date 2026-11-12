@@ -1,0 +1,72 @@
+{
+  "name": "catalog-import",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/catalog-import/src",
+  "projectType": "application",
+  "tags": ["scope:import"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["^prisma-generate"],
+      "inputs": ["default", "^production", { "externalDependencies": ["typescript"] }],
+      "options": {
+        "commands": ["tsc --noEmit -p tsconfig.app.json", "tsc --noEmit -p tsconfig.spec.json"],
+        "parallel": false,
+        "cwd": "{projectRoot}"
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": { "description": "Import e2e tests against TEST_DATABASE_URL. Some run the built CLI." },
+      "dependsOn": ["build", "^prisma-generate"],
+      "inputs": ["default", "catalogExport"],
+      "options": { "command": "jest --config jest.e2e.config.ts --runInBand", "cwd": "{projectRoot}" }
+    },
+    "import": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "Import the PIM export. Pass flags with --args. Reads apps/api/.env when it exists; real env vars win. Preloads otel.js, which sends traces and metrics only when OTEL_EXPORTER_OTLP_ENDPOINT is set."
+      },
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --env-file-if-exists=apps/api/.env --require ./dist/apps/catalog-import/otel.js dist/apps/catalog-import/main.js import"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "Import, plus the demo reviews when SEED_DEMO_REVIEWS=true. Reads apps/api/.env and preloads otel.js like import."
+      },
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --env-file-if-exists=apps/api/.env --require ./dist/apps/catalog-import/otel.js dist/apps/catalog-import/main.js seed"
+      }
+    },
+    "status": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "Print the last 10 import runs. Pass --json with --args. Reads apps/api/.env like import."
+      },
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --env-file-if-exists=apps/api/.env dist/apps/catalog-import/main.js status"
+      }
+    },
+    "migrate": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "Apply the Prisma migrations (prisma migrate deploy). Reads apps/api/.env like import."
+      },
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --env-file-if-exists=apps/api/.env dist/apps/catalog-import/main.js migrate"
+      }
+    }
+  }
+}

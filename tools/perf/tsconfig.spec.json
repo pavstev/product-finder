@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    // The spec imports the import lib through its alias, so the sources span the workspace. Type checks only.
+    "rootDir": "../..",
+    "types": ["jest", "node"]
+  },
+  "include": ["jest.config.ts", "queries.ts", "src/**/*.ts"]
+}

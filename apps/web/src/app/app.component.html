@@ -1,0 +1,26 @@
+<!-- Safari skips links on Tab by default, but not a link with a tabindex. So Tab reaches this one there too. -->
+<a class="skip-link" href="#main" tabindex="0" (click)="skipToMain($event)">Skip to content</a>
+<header class="app-header">
+  <a routerLink="/products" class="brand">
+    <i class="pi pi-box" aria-hidden="true"></i>
+    <span>Product Finder</span>
+  </a>
+</header>
+
+<main #main id="main" class="app-main" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="app-footer">
+  @if (catalog(); as status) {
+    @if (status.lastImportAt) {
+      <span>Catalogue updated {{ status.lastImportAt | date: 'medium' }}</span>
+      <span aria-hidden="true">·</span>
+      <span>{{ status.listedProducts }} products available</span>
+    } @else {
+      <span>The catalogue has not been imported yet.</span>
+    }
+  }
+</footer>
+
+<p-toast position="bottom-center" />

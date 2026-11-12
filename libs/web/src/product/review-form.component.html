@@ -1,0 +1,83 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="review-form-title">
+  <h3 id="review-form-title">Write a review</h3>
+
+  @if (!reviewable()) {
+    <p-message severity="info" icon="pi pi-info-circle">
+      Reviews are closed because this product is no longer sold. Existing reviews are still shown.
+    </p-message>
+  }
+
+  <fieldset class="field">
+    <legend>Your rating</legend>
+    <p-rating
+      formControlName="rating"
+      [stars]="rules.rating.max"
+      attr.aria-label="Rating from {{ rules.rating.min }} to {{ rules.rating.max }} stars"
+    />
+    @if (invalid('rating')) {
+      <small class="error" role="alert"
+        >Please choose {{ rules.rating.min }} to {{ rules.rating.max }} stars.</small
+      >
+    }
+  </fieldset>
+
+  <div class="field">
+    <label for="review-title">Title (optional)</label>
+    <input id="review-title" pInputText formControlName="title" [attr.maxlength]="rules.title.max" />
+    @if (invalid('title')) {
+      <small class="error" role="alert">At most {{ rules.title.max }} characters.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="review-body">Your experience</label>
+    <textarea
+      id="review-body"
+      pTextarea
+      rows="5"
+      formControlName="body"
+      [attr.maxlength]="rules.body.max"
+      aria-describedby="review-body-hint"
+    ></textarea>
+    <small id="review-body-hint" class="hint">
+      {{ rules.body.min }} to {{ rules.body.max }} characters. Plain text only. Reviews are public.
+    </small>
+    @if (invalid('body')) {
+      <small class="error" role="alert"
+        >Please write {{ rules.body.min }} to {{ rules.body.max }} characters.</small
+      >
+    }
+  </div>
+
+  <div class="field">
+    <label for="review-author">Display name</label>
+    <input
+      id="review-author"
+      pInputText
+      formControlName="authorName"
+      [attr.maxlength]="rules.authorName.max"
+      autocomplete="nickname"
+      aria-describedby="review-author-hint"
+    />
+    <small id="review-author-hint" class="hint"
+      >Shown with your review. Do not enter an e-mail address.</small
+    >
+    @if (invalid('authorName')) {
+      <small class="error" role="alert">
+        Please enter {{ rules.authorName.min }} to {{ rules.authorName.max }} characters.
+      </small>
+    }
+  </div>
+
+  @if (error(); as message) {
+    <p-message severity="error" icon="pi pi-exclamation-triangle">{{ message }}</p-message>
+  }
+
+  <p-button
+    type="submit"
+    label="Publish review"
+    icon="pi pi-send"
+    [loading]="submitting()"
+    [disabled]="!reviewable()"
+  />
+</form>

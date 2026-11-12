@@ -1,0 +1,93 @@
+<div class="actions">
+  <p-button label="Back to results" icon="pi pi-arrow-left" [text]="true" (onClick)="back()" />
+  @if (product(); as p) {
+    <p-button label="Share" icon="pi pi-share-alt" [outlined]="true" (onClick)="share(p)" />
+  }
+</div>
+
+@switch (view()) {
+  @case ('loading') {
+    <div aria-busy="true">
+      <p-skeleton width="60%" height="2rem" />
+      <div class="skeleton-gap"></div>
+      <p-skeleton height="10rem" />
+    </div>
+  }
+  @case ('not-found') {
+    <app-not-found
+      heading="Product not found"
+      message="There is no product with this SKU in the catalogue."
+    />
+  }
+  @case ('error') {
+    <p-message severity="error" icon="pi pi-exclamation-triangle">
+      <div class="error">
+        <span>The product could not be loaded.</span>
+        <p-button label="Retry" icon="pi pi-refresh" size="small" (onClick)="reload()" />
+      </div>
+    </p-message>
+  }
+  @case ('ok') {
+    @let p = product()!;
+    <article class="product">
+      <header>
+        <h1>{{ p.name }}</h1>
+        <app-status-tag [status]="p.status" [inLatestExport]="p.inLatestExport" />
+      </header>
+      <p class="sku">SKU {{ p.sku }}</p>
+
+      @if (banner(); as b) {
+        <p-message [severity]="b.severity" [icon]="b.icon" styleClass="banner">{{ b.text }}</p-message>
+      }
+
+      <app-rating-stars [rating]="p.ratingAvg" [count]="p.reviewCount" />
+
+      @if (p.description) {
+        <p class="description">{{ p.description }}</p>
+      }
+
+      <dl class="facts">
+        <div>
+          <dt>Chemical name</dt>
+          <dd>{{ p.chemicalName ?? 'Not specified' }}</dd>
+        </div>
+        <div>
+          <dt>Function</dt>
+          <dd>{{ p.function }}</dd>
+        </div>
+        <div>
+          <dt>Application area</dt>
+          <dd>{{ p.applicationArea }}</dd>
+        </div>
+        <div>
+          <dt>Region</dt>
+          <dd>{{ p.region }}</dd>
+        </div>
+        <div>
+          <dt>Launch year</dt>
+          <dd>{{ p.launchYear ?? 'Unknown' }}</dd>
+        </div>
+        <div>
+          <dt>Certifications</dt>
+          <dd>
+            @if (p.certifications.length > 0) {
+              <ul class="chips">
+                @for (cert of p.certifications; track cert) {
+                  <li><p-chip [label]="cert" /></li>
+                }
+              </ul>
+            } @else {
+              None listed
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Data updated</dt>
+          <dd>{{ p.updatedAt | date: 'mediumDate' }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <app-review-section />
+  }
+}

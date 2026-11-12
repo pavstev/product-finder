@@ -1,0 +1,12 @@
+dist
+coverage
+node_modules
+.nx
+.angular
+tmp
+libs/server/src/db/generated
+libs/web/src/data-access/generated
+libs/server/prisma/migrations
+pnpm-lock.yaml
+playwright-report
+test-results

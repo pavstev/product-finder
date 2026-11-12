@@ -1,0 +1,41 @@
+{
+  "name": "web-lib",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/src",
+  "projectType": "library",
+  "prefix": "app",
+  "tags": ["scope:web"],
+  "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [{ "projects": ["api"], "target": "openapi" }],
+      "inputs": [
+        "{projectRoot}/openapi-ts.config.ts",
+        { "dependentTasksOutputFiles": "**/openapi.json" },
+        { "externalDependencies": ["@hey-api/openapi-ts"] }
+      ],
+      "outputs": ["{projectRoot}/src/data-access/generated"],
+      "options": {
+        "command": "openapi-ts --file libs/web/openapi-ts.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production",
+        "^testing",
+        { "externalDependencies": ["typescript"] },
+        { "dependentTasksOutputFiles": "**/*.ts", "transitive": true }
+      ],
+      "options": {
+        "commands": ["tsc --noEmit -p tsconfig.lib.json", "tsc --noEmit -p tsconfig.spec.json"],
+        "parallel": false,
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

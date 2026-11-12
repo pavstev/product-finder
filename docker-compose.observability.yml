@@ -1,0 +1,40 @@
+# Local observability stack, on top of the default stack:
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml up --build
+# One grafana/otel-lgtm container: an OpenTelemetry Collector, Prometheus, Tempo, Loki and Grafana.
+# For local development and demos only. It keeps its data in the container, so `down` clears it.
+#   Grafana   http://127.0.0.1:3001 (no login, local machine only)
+#   OTLP/HTTP http://127.0.0.1:4318 (so `pnpm nx serve api` on the host can send to it too)
+# Only this file gives the api and the import job OTEL_EXPORTER_OTLP_ENDPOINT. Without it, the
+# OpenTelemetry preload (otel.js) does nothing, so the default stack sends no telemetry.
+services:
+  otel:
+    image: grafana/otel-lgtm:0.40.0
+    ports:
+      - '127.0.0.1:${GRAFANA_PORT:-3001}:3000'
+      - '127.0.0.1:${OTLP_HTTP_PORT:-4318}:4318'
+    volumes:
+      # The Product Finder dashboard (docker/otel/), next to the dashboards of the image.
+      - ./docker/otel/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/product-finder.yaml:ro
+      - ./docker/otel/product-finder.json:/otel-lgtm/grafana/conf/provisioning/dashboards/product-finder/product-finder.json:ro
+    # The image checks every 30 seconds. Check more often, so the api and the import wait less.
+    healthcheck:
+      test: ['CMD', '/otel-lgtm/docker/healthcheck.sh']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # The import sends its spans and metrics when it exits. The collector must be up by then.
+  migrate:
+    command: ['sh', '-c', 'node main.js migrate && node --require ./otel.js main.js seed']
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4318
+    depends_on:
+      otel:
+        condition: service_healthy
+
+  api:
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4318
+    depends_on:
+      otel:
+        condition: service_healthy

@@ -1,0 +1,10 @@
+# Grafana dashboard provider for the otel-lgtm container (docker-compose.observability.yml).
+# It loads product-finder.json from the folder that the override file mounts.
+apiVersion: 1
+
+providers:
+  - name: 'Product Finder'
+    type: file
+    options:
+      path: /otel-lgtm/grafana/conf/provisioning/dashboards/product-finder
+      foldersFromFilesStructure: false

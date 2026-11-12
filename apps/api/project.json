@@ -1,0 +1,71 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "tags": ["scope:api"],
+  "targets": {
+    "build": { "dependsOn": ["^build", "^prisma-generate"] },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "metadata": {
+        "description": "Build and run the API with the OpenTelemetry preload (dist/apps/api/otel.js). It does nothing unless OTEL_EXPORTER_OTLP_ENDPOINT is set."
+      },
+      "options": {
+        "buildTarget": "api:build",
+        "watch": true,
+        "runtimeArgs": ["--require", "./dist/apps/api/otel.js"]
+      },
+      "configurations": {
+        "development": { "buildTarget": "api:build:development" },
+        "production": { "buildTarget": "api:build:production" }
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["^prisma-generate"],
+      "inputs": ["default", "^production", { "externalDependencies": ["typescript"] }],
+      "options": {
+        "commands": ["tsc --noEmit -p tsconfig.app.json", "tsc --noEmit -p tsconfig.spec.json"],
+        "parallel": false,
+        "cwd": "{projectRoot}"
+      }
+    },
+    "test": {
+      "dependsOn": ["^prisma-generate"],
+      "inputs": [
+        "default",
+        "^production",
+        "^testing",
+        { "dependentTasksOutputFiles": "**/*.ts", "transitive": true }
+      ]
+    },
+    "openapi": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "metadata": {
+        "description": "Write dist/contracts/openapi.json from the built API. Nest preview mode: no database is reached, the DATABASE_URL below only has to be a valid URL."
+      },
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{workspaceRoot}/dist/contracts/openapi.json"],
+      "options": {
+        "command": "node dist/apps/api/emit-openapi.js dist/contracts/openapi.json",
+        "env": { "DATABASE_URL": "postgresql://openapi.invalid:5432/openapi" }
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "metadata": {
+        "description": "API e2e tests against TEST_DATABASE_URL. They load the catalogue with the built catalog-import CLI, so that build runs first. A task dependency only: the api imports no import code."
+      },
+      "dependsOn": ["^prisma-generate", { "projects": ["catalog-import"], "target": "build" }],
+      "inputs": ["default", "catalogExport"],
+      "options": { "command": "jest --config jest.e2e.config.ts --runInBand", "cwd": "{projectRoot}" }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "sourceMaps": "inline",
+  "jsc": {
+    "parser": { "syntax": "typescript" },
+    "target": "es2023"
+  },
+  "module": { "type": "commonjs" }
+}
